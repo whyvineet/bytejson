@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.bjidx
+.pytest_cache/
+examples/reddit.json
+*.egg-info/
