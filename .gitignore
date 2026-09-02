@@ -4,3 +4,4 @@ __pycache__/
 .pytest_cache/
 examples/reddit.json
 *.egg-info/
+.env
