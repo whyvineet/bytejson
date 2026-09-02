@@ -13,6 +13,7 @@ _FALSE = b"false"
 _NULL = b"null"
 
 _STRING_RE = re.compile(rb'"(?:[^"\\]|\\.)*"', re.DOTALL)
+_NUMBER_RE = re.compile(rb"-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?")
 
 _NUMBER_CHARS = frozenset(b"-+.eE0123456789")
 _WS_CHARS = frozenset(b" \t\n\r")
@@ -77,14 +78,13 @@ class _Scanner:
         return m.end()
 
     def _number_end(self, pos: int) -> int:
-        buf = self.buf
-        n = self.length
-        i = pos
-        while i < n and buf[i] in _NUMBER_CHARS:
-            i += 1
-        if i == pos:
+        m = _NUMBER_RE.match(self.buf, pos)
+        if m is None:
             raise JSONScanError(f"invalid number at byte offset {pos}")
-        return i
+        end = m.end()
+        if end < self.length and self.buf[end] in _NUMBER_CHARS:
+            raise JSONScanError(f"invalid number at byte offset {pos}")
+        return end
 
     def _decode_key(self, start: int, end: int) -> str:
         body = self.buf[start + 1 : end - 1]
